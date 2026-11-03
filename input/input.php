@@ -1,41 +1,57 @@
+```php
 <?php
-// Pastikan data dikirim melalui metode POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $kecamatan = $_POST['kecamatan'];
+
+    $ogc_fid = $_POST['ogc_fid'];
+    $kemantren = $_POST['kemantren'];
+    $kelurahan = $_POST['kelurahan'];
     $longitude = $_POST['longitude'];
     $latitude = $_POST['latitude'];
-    $luas = $_POST['luas'];
-    $jumlah_penduduk = $_POST['jumlah_penduduk'];
+    $alamat = $_POST['alamat'];
 
-    // Sesuaikan dengan setting MySQL
+    // Koneksi database
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "jumlah_penduduk";
+    $dbname = "studi_kasus";
 
-    // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
 
-    // Check connection
     if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        die("Koneksi gagal: " . $conn->connect_error);
     }
 
-    // Query INSERT dengan menyertakan longitude dan latitude
-    $sql = "INSERT INTO kependudukan (kecamatan, longitude, latitude, luas, jumlah_penduduk) 
-            VALUES ('$kecamatan', '$longitude', '$latitude', '$luas', '$jumlah_penduduk')";
+    // Query INSERT
+    $sql = "INSERT INTO data_geoportal
+            (ogc_fid, kemantren, kelurahan, longitude, latitude, alamat)
+            VALUES (?, ?, ?, ?, ?, ?)";
 
-    if ($conn->query($sql) === TRUE) {
-        // Jika berhasil, alihkan kembali ke index.php di luar folder input
+    $stmt = $conn->prepare($sql);
+
+    $stmt->bind_param(
+        "issdds",
+        $ogc_fid,
+        $kemantren,
+        $kelurahan,
+        $longitude,
+        $latitude,
+        $alamat
+    );
+
+    if ($stmt->execute()) {
         header("Location: ../index.php");
         exit();
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Error: " . $stmt->error;
     }
 
+    $stmt->close();
     $conn->close();
+
 } else {
-    // Jika file diakses langsung tanpa lewat form
-    echo "Akses dilarang!";
+    // Jika dibuka langsung, kembali ke halaman utama
+    header("Location: ../index.php");
+    exit();
 }
 ?>
+```
