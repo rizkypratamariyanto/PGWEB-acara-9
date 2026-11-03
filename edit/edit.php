@@ -1,4 +1,4 @@
-```php
+
 <?php
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -22,23 +22,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Koneksi gagal: " . $conn->connect_error);
     }
 
-    // Query update data
-    $sql = "UPDATE data_geoportal SET
-            kemantren = ?,
-            kelurahan = ?,
-            longitude = ?,
-            latitude = ?,
-            alamat = ?
-            WHERE ogc_fid = ?";
+    // Query update menggunakan nama kolom asli
+    $sql = "UPDATE data_geoportal_fix SET
+            `COL 2` = ?,
+            `COL 3` = ?,
+            `COL 4` = ?,
+            `COL 5` = ?,
+            `COL 6` = ?
+            WHERE `COL 1` = ?";
 
     $stmt = $conn->prepare($sql);
 
     $stmt->bind_param(
-        "ssddsi",
+        "ssddss",
         $kemantren,
         $kelurahan,
-        $longitude,
         $latitude,
+        $longitude,
         $alamat,
         $ogc_fid
     );
@@ -64,4 +64,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 ?>
-```

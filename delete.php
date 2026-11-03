@@ -1,6 +1,8 @@
+
 <?php
 
-$ogc_fid = $_GET['id'];
+// Mengambil ID dari URL
+$ogc_fid = $_GET['id'] ?? '';
 
 // Koneksi database
 $servername = "localhost";
@@ -8,7 +10,6 @@ $username = "root";
 $password = "";
 $dbname = "studi_kasus";
 
-// Membuat koneksi
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Memeriksa koneksi
@@ -16,23 +17,20 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Menghapus data berdasarkan OGC FID
-$sql = "DELETE FROM data_geoportal WHERE ogc_fid = ?";
+// Menghapus data berdasarkan kolom COL 1
+$sql = "DELETE FROM data_geoportal_fix WHERE `COL 1` = ?";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $ogc_fid);
+$stmt->bind_param("s", $ogc_fid);
 
 if ($stmt->execute()) {
-    echo "Record with OGC FID = $ogc_fid deleted successfully";
+    header("Location: index.php");
+    exit();
 } else {
     echo "Error: " . $stmt->error;
 }
 
 $stmt->close();
 $conn->close();
-
-// Kembali ke halaman utama
-header("Location: index.php");
-exit();
 
 ?>

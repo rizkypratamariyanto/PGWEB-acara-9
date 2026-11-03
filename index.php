@@ -1,5 +1,6 @@
+
 <?php
-// Sesuaikan dengan pengaturan MySQL
+// Pengaturan koneksi MySQL
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -13,17 +14,31 @@ if ($conn->connect_error) {
     die("Koneksi gagal: " . $conn->connect_error);
 }
 
-// Mengambil seluruh data dari tabel kependudukan
-$sql = "SELECT * FROM data_geoportal";
+// Mengambil data dari tabel data_geoportal_fix
+// Mengubah nama COL 1 sampai COL 6 menggunakan alias
+$sql = "SELECT
+            `COL 1` AS ogc_fid,
+            `COL 2` AS kemantren,
+            `COL 3` AS kelurahan,
+            `COL 4` AS latitude,
+            `COL 5` AS longitude,
+            `COL 6` AS alamat
+        FROM data_geoportal_fix";
+
 $result = $conn->query($sql);
 
-// Menampilkan link untuk menambahkan data
+// Menampilkan link input data
 echo "<a href='input/index.html'>Input Data</a>";
 
-// Memeriksa apakah terdapat data
-if ($result && $result->num_rows > 0) {
+// Memeriksa apakah query berhasil
+if (!$result) {
+    die("Query gagal: " . $conn->error);
+}
 
-    echo "<table border='1'>
+// Memeriksa apakah terdapat data
+if ($result->num_rows > 0) {
+
+    echo "<table border='1' cellpadding='5'>
         <tr>
             <th>ogc_fid</th>
             <th>Kemantren</th>
@@ -38,17 +53,17 @@ if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
 
         echo "<tr>
-            <td>" . ($row["ogc_fid"]) . "</td>
-            <td>" . ($row["kemantren"]) . "</td>
-            <td>" . ($row["kelurahan"]) . "</td>
-            <td align='right'>" . ($row["longitude"]) . "</td>
-            <td align='right'>" . ($row["latitude"]) . "</td>
-            <td align='right'>" . ($row["alamat"]) . "</td>
+            <td>" . htmlspecialchars($row["ogc_fid"]) . "</td>
+            <td>" . htmlspecialchars($row["kemantren"]) . "</td>
+            <td>" . htmlspecialchars($row["kelurahan"]) . "</td>
+            <td align='right'>" . htmlspecialchars($row["longitude"]) . "</td>
+            <td align='right'>" . htmlspecialchars($row["latitude"]) . "</td>
+            <td>" . htmlspecialchars($row["alamat"]) . "</td>
             <td>
-                <a href='delete.php?id=" .($row["ogc_fid"]) . "'>Hapus</a>
+                <a href='delete.php?id=" . urlencode($row["ogc_fid"]) . "'>Hapus</a>
             </td>
             <td>
-                <a href='edit/index.php?id=" .($row["ogc_fid"]) . "'>Edit</a>
+                <a href='edit/index.php?id=" . urlencode($row["ogc_fid"]) . "'>Edit</a>
             </td>
         </tr>";
     }
@@ -59,6 +74,6 @@ if ($result && $result->num_rows > 0) {
     echo "0 results";
 }
 
-// Menutup koneksi database
+// Menutup koneksi
 $conn->close();
 ?>

@@ -1,5 +1,6 @@
-```php
+
 <?php
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $ogc_fid = $_POST['ogc_fid'];
@@ -21,26 +22,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Koneksi gagal: " . $conn->connect_error);
     }
 
-    // Query INSERT
-    $sql = "INSERT INTO data_geoportal
-            (ogc_fid, kemantren, kelurahan, longitude, latitude, alamat)
+    // Query INSERT menggunakan nama kolom asli
+    $sql = "INSERT INTO data_geoportal_fix
+            (`COL 1`, `COL 2`, `COL 3`, `COL 4`, `COL 5`, `COL 6`)
             VALUES (?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
 
     $stmt->bind_param(
-        "issdds",
+        "sssdds",
         $ogc_fid,
         $kemantren,
         $kelurahan,
-        $longitude,
         $latitude,
+        $longitude,
         $alamat
     );
 
     if ($stmt->execute()) {
+
+        $stmt->close();
+        $conn->close();
+
         header("Location: ../index.php");
         exit();
+
     } else {
         echo "Error: " . $stmt->error;
     }
@@ -49,9 +55,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 
 } else {
-    // Jika dibuka langsung, kembali ke halaman utama
+
     header("Location: ../index.php");
     exit();
+
 }
+
 ?>
-```
